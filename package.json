@@ -1,0 +1,37 @@
+{
+  "name": "netjam.auth-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+  },
+  "dependencies": {
+    "@netjam/server": "latest",
+    "moment": "latest",
+    "jsonwebtoken": "8.5.1",
+    "typeorm": "0.2.25",
+    "lodash": "4.17.20",
+    "pg": "8.3.2",
+    "uuid": "8.3.0"
+  },
+  "devDependencies": {
+    "typescript": "4.0.2",
+    "ts-node": "9.0.0",
+    "@types/node": "14.6.0",
+    "@types/express": "4.17.7",
+    "@types/socket.io": "2.1.11",
+    "@types/moment": "2.13.0",
+    "@types/jsonwebtoken": "8.5.0",
+    "@types/lodash": "4.14.159",
+    "@types/uuid": "8.3.0",
+    "eslint": "7.7.0",
+    "prettier": "2.0.5",
+    "eslint-config-airbnb": "18.2.0",
+    "eslint-config-prettier": "6.11.0",
+    "eslint-plugin-prettier": "3.1.4",
+    "nodemon": "2.0.4"
+  },
+  "author": "",
+  "license": "ISC"
+}
