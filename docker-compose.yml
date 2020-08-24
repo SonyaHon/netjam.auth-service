@@ -1,0 +1,23 @@
+version: "3"
+services:
+  web:
+    build: .
+    ports:
+      - 9091:9091
+    networks:
+      - webnet
+    environment:
+      DB_HOST: db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+  db:
+    image: postgres
+    networks:
+      - webnet
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USERNAME: postgres
+      POSTGRES_DB: auth_service
+networks:
+  webnet:
+    

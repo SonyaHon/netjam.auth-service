@@ -1,3 +1,4 @@
 export enum EPermissions {
-  ALL = "ALL",
+  ROOT = "ROOT",
+  GUEST = "GUEST",
 }

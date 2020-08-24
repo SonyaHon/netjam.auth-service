@@ -5,9 +5,7 @@ import { v1 as uuid } from "uuid";
 
 @Entity()
 export class User {
-  @PrimaryColumn({
-    default: () => uuid(),
-  })
+  @PrimaryColumn("varchar")
   id: string;
 
   @Column({
@@ -34,15 +32,13 @@ export class User {
 
   @Column({
     type: "jsonb",
-    default: () => [],
-    nullable: false,
+    nullable: true,
   })
   permissions: EPermissions[];
 
   @Column({
     type: "jsonb",
-    default: {},
-    nullable: false,
+    nullable: true,
   })
   data: UserData;
 }
