@@ -1,7 +1,15 @@
 import { Entity, Column, PrimaryColumn } from "typeorm";
 import { EPermissions } from "../reference/permissions";
 import { UserData } from "../reference/user-data";
-import { v1 as uuid } from "uuid";
+import { v4 as uuid } from "uuid";
+
+export interface ICreateUser {
+  username: string;
+  password: string;
+  salt: string;
+  permissions?: EPermissions[];
+  data?: UserData;
+}
 
 @Entity()
 export class User {
@@ -41,4 +49,17 @@ export class User {
     nullable: true,
   })
   data: UserData;
+
+  static Create(data: ICreateUser): User {
+    const user = new User();
+
+    user.id = uuid();
+    user.username = data.username;
+    user.password = data.password;
+    user.salt = data.salt;
+    user.permissions = data.permissions || [EPermissions.GUEST];
+    user.data = data.data || {};
+
+    return user;
+  }
 }
