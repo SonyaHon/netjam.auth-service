@@ -1,8 +1,8 @@
 import { ProviderBase, Provider, ProviderType, AfterStartInit, Post, Body, Res, Get, Req } from "@netjam/server";
+import { Response, Request } from "express";
 import { DatabaseProvider } from "./database.provider";
 import { User, ICreateUser } from "../entity/user.entity";
-import { Response, Request } from "express";
-import { HTTP_CODE, IError, Errorable, ERROR_CODE } from "../reference/error";
+import { HTTP_CODE, Errorable, ERROR_CODE } from "../reference/error";
 import { LoggerProvider } from "./logger.provider";
 
 @Provider(ProviderType.REST, {
@@ -10,6 +10,7 @@ import { LoggerProvider } from "./logger.provider";
 })
 export class UserProvider extends ProviderBase {
   private db: DatabaseProvider;
+
   private logger: LoggerProvider;
 
   @AfterStartInit
@@ -31,9 +32,10 @@ export class UserProvider extends ProviderBase {
     }
   }
 
-  @Get("/get")
-  async getUserRemote(@Req() request: Request) {
+  @Get("/fetch-self")
+  async fetchSelf(@Req() request: Request) {
     console.log(request.cookies);
+
     return false;
   }
 
@@ -42,6 +44,7 @@ export class UserProvider extends ProviderBase {
     // validation
     if (!body.username || !body.password) {
       response.status(HTTP_CODE.MALFORMED_REQUEST);
+
       return {
         code: ERROR_CODE.WRONG_VALIDATION,
         message: "Not all required fields are listed",
@@ -52,6 +55,8 @@ export class UserProvider extends ProviderBase {
       const user = await User.Create(body);
       await this.db.userRepository.save(user);
       response.status(204);
+
+      return undefined;
     } catch (e) {
       console.error(e);
       this.logger.error({
@@ -60,6 +65,7 @@ export class UserProvider extends ProviderBase {
         data: e,
       });
       response.status(HTTP_CODE.INTERNAL_ERROR);
+
       return {
         message: e.message,
       };

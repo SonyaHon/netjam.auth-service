@@ -1,22 +1,22 @@
 import { NetjamServer } from "@netjam/server";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import { DatabaseProvider } from "./providers/database.provider";
 import { AuthProvider } from "./providers/auth.provider";
 import { UserProvider } from "./providers/user.provider";
 import { LoggerProvider } from "./providers/logger.provider";
-import cookieParser from "cookie-parser";
-import cors from "cors";
 
 const njApp = new NetjamServer({
   server: {
     host: process.env.NJ_HOST || "0.0.0.0",
-    port: parseInt(process.env.NJ_PORT) || 9091,
+    port: parseInt(process.env.NJ_PORT, 10) || 9091,
   },
   ...(process.env.NJ_SERVICE_NAME
     ? {
         microservice: {
           serviceName: process.env.NJ_SERVICE_NAME,
           redisConnection: {
-            port: parseInt(process.env.NJ_REDIS_PORT),
+            port: parseInt(process.env.NJ_REDIS_PORT, 10),
             host: process.env.NJ_REDIS_HOST,
           },
         },
