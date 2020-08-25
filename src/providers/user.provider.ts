@@ -1,12 +1,4 @@
-import {
-  ProviderBase,
-  Provider,
-  ProviderType,
-  AfterStartInit,
-  Post,
-  Body,
-  Res,
-} from "@netjam/server";
+import { ProviderBase, Provider, ProviderType, AfterStartInit, Post, Body, Res } from "@netjam/server";
 import { DatabaseProvider } from "./database.provider";
 import { User, ICreateUser } from "../entity/user.entity";
 import { Response } from "express";
@@ -26,13 +18,21 @@ export class UserProvider extends ProviderBase {
     this.logger = this.getProvider<LoggerProvider>(LoggerProvider.name);
   }
 
+  async getUser(username: string): Promise<Errorable<User>> {
+    try {
+      return this.db.userRepository.findOne({
+        username,
+      });
+    } catch (e) {
+      // @todo parse error
+      return null;
+    }
+  }
+
   @Post("/create")
-  async createUser(
-    @Body() body: ICreateUser,
-    @Res() response: Response
-  ): Promise<Errorable<undefined>> {
+  async createUser(@Body() body: ICreateUser, @Res() response: Response): Promise<Errorable<undefined>> {
     // validation
-    if (!body.username || !body.password || !body.salt) {
+    if (!body.username || !body.password) {
       response.status(HTTP_CODE.MALFORMED_REQUEST);
       return {
         code: ERROR_CODE.WRONG_VALIDATION,
@@ -41,7 +41,7 @@ export class UserProvider extends ProviderBase {
     }
 
     try {
-      const user = User.Create(body);
+      const user = await User.Create(body);
       await this.db.userRepository.save(user);
       response.status(204);
     } catch (e) {

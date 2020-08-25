@@ -16,4 +16,5 @@ export const HTTP_CODE = {
 export const ERROR_CODE = {
   WRONG_VALIDATION: "0x00",
   CATCHED_ERROR: "0x01",
+  USER_NOT_FOUND: "0x02",
 };

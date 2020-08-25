@@ -2,11 +2,12 @@ import { Entity, Column, PrimaryColumn } from "typeorm";
 import { EPermissions } from "../reference/permissions";
 import { UserData } from "../reference/user-data";
 import { v4 as uuid } from "uuid";
+import { genSalt, hash } from "bcrypt";
+import { SALT_ROUNDS } from "../reference/crypto";
 
 export interface ICreateUser {
   username: string;
   password: string;
-  salt: string;
   permissions?: EPermissions[];
   data?: UserData;
 }
@@ -32,13 +33,6 @@ export class User {
   password: string;
 
   @Column({
-    type: "varchar",
-    length: 255,
-    nullable: false,
-  })
-  salt: string;
-
-  @Column({
     type: "jsonb",
     nullable: true,
   })
@@ -50,15 +44,16 @@ export class User {
   })
   data: UserData;
 
-  static Create(data: ICreateUser): User {
+  static async Create(data: ICreateUser): Promise<User> {
     const user = new User();
 
     user.id = uuid();
     user.username = data.username;
-    user.password = data.password;
-    user.salt = data.salt;
     user.permissions = data.permissions || [EPermissions.GUEST];
     user.data = data.data || {};
+
+    const passwordHash = await hash(data.password, SALT_ROUNDS);
+    user.password = passwordHash;
 
     return user;
   }
