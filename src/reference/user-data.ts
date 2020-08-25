@@ -1,1 +1,3 @@
-export interface UserData {}
+export interface UserData {
+    loginTimeout?: number; 
+}

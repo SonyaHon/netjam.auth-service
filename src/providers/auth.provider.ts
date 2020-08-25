@@ -3,7 +3,7 @@ import { DatabaseProvider } from "./database.provider";
 import { Response } from "express";
 import { UserProvider } from "./user.provider";
 import { User } from "../entity/user.entity";
-import { HTTP_CODE, Errorable, ERROR_CODE } from "../reference/error";
+import { HTTP_CODE, Errorable, ERROR_CODE, IError } from "../reference/error";
 import { compare } from "bcrypt";
 import { sign, verify } from "jsonwebtoken";
 
@@ -31,9 +31,9 @@ export class AuthProvider extends ProviderBase {
     };
 
     const user = await this.getProvider<UserProvider>(UserProvider.name).getUser(body.username);
-    if (!user) {
+    if (!user || (user as IError).code || (user as IError).message) {
       response.status(HTTP_CODE.NOT_FOUND);
-      return ERR;
+      return user ? (user as IError) : ERR;
     }
     let unwrapedUser = user as User;
     const res = await compare(body.password, unwrapedUser.password);
@@ -42,9 +42,11 @@ export class AuthProvider extends ProviderBase {
       return ERR;
     }
 
-    const token = sign({ userId: unwrapedUser.id }, process.env.NJ_JWT_SECRET || "secret");
-    console.log("Enc", token);
-    console.log("Dec", verify(token, "secret"));
+    const jwtToken = sign({ userId: unwrapedUser.id }, process.env.NJ_JWT_SECRET || "secret", {
+      expiresIn: unwrapedUser.data.loginTimeout ? unwrapedUser.data.loginTimeout : "7d",
+    });
+    response.cookie("nj-jwt-token", jwtToken);
+    // @todo write this token to cookie
     return true;
   }
 }

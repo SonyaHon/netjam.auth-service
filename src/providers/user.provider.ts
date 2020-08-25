@@ -1,7 +1,7 @@
-import { ProviderBase, Provider, ProviderType, AfterStartInit, Post, Body, Res } from "@netjam/server";
+import { ProviderBase, Provider, ProviderType, AfterStartInit, Post, Body, Res, Get, Req } from "@netjam/server";
 import { DatabaseProvider } from "./database.provider";
 import { User, ICreateUser } from "../entity/user.entity";
-import { Response } from "express";
+import { Response, Request } from "express";
 import { HTTP_CODE, IError, Errorable, ERROR_CODE } from "../reference/error";
 import { LoggerProvider } from "./logger.provider";
 
@@ -29,6 +29,12 @@ export class UserProvider extends ProviderBase {
       // @todo parse error
       return null;
     }
+  }
+
+  @Get("/get")
+  async getUserRemote(@Req() request: Request) {
+    console.log(request.cookies);
+    return false;
   }
 
   @Post("/create")
