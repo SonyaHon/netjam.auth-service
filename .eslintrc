@@ -1,14 +1,14 @@
 {
-  "extends": ["airbnb-typescript", "prettier"],
+  "extends": ["airbnb-typescript", "prettier", "prettier/@typescript-eslint"],
   "plugins": ["prettier", "@typescript-eslint"],
   "rules": {
-    "prettier/prettier": ["error"],
     "quotes": ["error", "double"],
     "@typescript-eslint/quotes": ["error", "double"],
     "@typescript-eslint/indent": ["off"],
     "no-console": ["warn"],
     "newline-before-return": ["error"],
-    "import/prefer-default-export": ["off"]
+    "import/prefer-default-export": ["off"],
+    "prettier/prettier": ["error", {}]
   },
   "parserOptions": {
     "project": "./tsconfig.json"
