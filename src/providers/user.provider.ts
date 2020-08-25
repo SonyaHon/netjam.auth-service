@@ -9,36 +9,52 @@ import {
 } from "@netjam/server";
 import { DatabaseProvider } from "./database.provider";
 import { User, ICreateUser } from "../entity/user.entity";
-import { v4 as uuid } from "uuid";
-import { EPermissions } from "../reference/permissions";
 import { Response } from "express";
+import { HTTP_CODE, IError, Errorable, ERROR_CODE } from "../reference/error";
+import { LoggerProvider } from "./logger.provider";
 
 @Provider(ProviderType.REST, {
   prefix: "/user",
 })
 export class UserProvider extends ProviderBase {
   private db: DatabaseProvider;
+  private logger: LoggerProvider;
 
   @AfterStartInit
   async afterStartInit() {
     this.db = this.getProvider<DatabaseProvider>(DatabaseProvider.name);
+    this.logger = this.getProvider<LoggerProvider>(LoggerProvider.name);
   }
 
   @Post("/create")
-  async createUser(@Body() body: ICreateUser, @Res() response: Response) {
+  async createUser(
+    @Body() body: ICreateUser,
+    @Res() response: Response
+  ): Promise<Errorable<undefined>> {
     // validation
     if (!body.username || !body.password || !body.salt) {
-      response.status(400);
-      return;
+      response.status(HTTP_CODE.MALFORMED_REQUEST);
+      return {
+        code: ERROR_CODE.WRONG_VALIDATION,
+        message: "Not all required fields are listed",
+      };
     }
 
     try {
       const user = User.Create(body);
-      await this.db.getRepository("user").save(user);
+      await this.db.userRepository.save(user);
       response.status(204);
     } catch (e) {
       console.error(e);
-      response.status(500);
+      this.logger.error({
+        code: ERROR_CODE.CATCHED_ERROR,
+        message: e.message,
+        data: e,
+      });
+      response.status(HTTP_CODE.INTERNAL_ERROR);
+      return {
+        message: e.message,
+      };
     }
   }
 }

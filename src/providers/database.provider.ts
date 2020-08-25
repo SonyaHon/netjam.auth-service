@@ -1,10 +1,12 @@
 import { ProviderBase, Init } from "@netjam/server";
 import { createConnection, Connection, Repository } from "typeorm";
 import { User } from "../entity/user.entity";
+import { Log } from "../entity/log.entity";
 
 export class DatabaseProvider extends ProviderBase {
   private connection: Connection;
-  private userRepository: Repository<User>;
+  public userRepository: Repository<User>;
+  public logRepository: Repository<Log>;
 
   @Init
   async init() {
@@ -20,13 +22,6 @@ export class DatabaseProvider extends ProviderBase {
       entities: ["src/entity/**/*.ts"],
     });
     this.userRepository = this.connection.getRepository(User);
-  }
-
-  getRepository(repository: "user") {
-    const map = {
-      user: this.userRepository,
-    };
-
-    return map[repository];
+    this.logRepository = this.connection.getRepository(Log);
   }
 }
