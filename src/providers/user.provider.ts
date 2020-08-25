@@ -21,7 +21,9 @@ export class UserProvider extends ProviderBase {
   async getUser(username: string): Promise<Errorable<User>> {
     try {
       return this.db.userRepository.findOne({
-        username,
+        where: {
+          username,
+        },
       });
     } catch (e) {
       // @todo parse error

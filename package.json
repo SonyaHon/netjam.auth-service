@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start-dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "start-dev": "DB_HOST=localhost DB_USERNAME=postgres DB_PASSWORD=postgres DB_PORT=5432 NJ_HOST=0.0.0.0 NJ_PORT=9091 ts-node ./src/index.ts"
   },
   "dependencies": {
     "@netjam/server": "latest",

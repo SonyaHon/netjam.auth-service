@@ -10,9 +10,12 @@ services:
       DB_HOST: db
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
+      DB_PORT: 5432
+      NJ_HOST: "0.0.0.0"
+      NJ_PORT: 9091
   db:
     image: postgres
-    ports: 
+    ports:
       - 5432:5432
     networks:
       - webnet

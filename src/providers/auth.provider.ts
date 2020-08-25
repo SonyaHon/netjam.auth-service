@@ -26,7 +26,6 @@ export class AuthProvider extends ProviderBase {
   @Post("/login")
   async login(@Body() body: IAuthLogin, @Res() response: Response): Promise<Errorable<any>> {
     const user = await this.getProvider<UserProvider>(UserProvider.name).getUser(body.username);
-
     if (!user) {
       response.status(HTTP_CODE.NOT_FOUND);
       return {
@@ -39,6 +38,9 @@ export class AuthProvider extends ProviderBase {
     if (res) {
       // login user
       return true;
+    }
+    else {
+      return false;
     }
   }
 }
