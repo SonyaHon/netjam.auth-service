@@ -13,7 +13,7 @@ export class DatabaseProvider extends ProviderBase {
       host: process.env.DB_HOST || "localhost",
       port: 5432,
       username: process.env.DB_USERNAME || "postgres",
-      password: process.env.DB_PASS || "gopniki",
+      password: process.env.DB_PASSWORD || "gopniki",
       database: "auth_service",
       synchronize: true,
       logging: false,
