@@ -58,7 +58,15 @@ export class UserProvider extends ProviderBase {
 
       return undefined;
     } catch (e) {
-      console.error(e);
+      if (e.code === "23505") {
+        response.status(HTTP_CODE.MALFORMED_REQUEST);
+
+        return {
+          code: ERROR_CODE.USERNAME_NOT_AVAILABLE,
+          message: "Username is already taken",
+        };
+      }
+
       this.logger.error({
         code: ERROR_CODE.CATCHED_ERROR,
         message: e.message,
