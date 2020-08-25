@@ -1,12 +1,4 @@
-import {
-  ProviderBase,
-  AfterStartInit,
-  Provider,
-  ProviderType,
-  Post,
-  Body,
-  Res,
-} from "@netjam/server";
+import { ProviderBase, AfterStartInit, Provider, ProviderType, Post, Body, Res } from "@netjam/server";
 import { DatabaseProvider } from "./database.provider";
 import { Response } from "express";
 import { UserProvider } from "./user.provider";
@@ -32,13 +24,8 @@ export class AuthProvider extends ProviderBase {
   }
 
   @Post("/login")
-  async login(
-    @Body() body: IAuthLogin,
-    @Res() response: Response
-  ): Promise<Errorable<any>> {
-    const user = await this.getProvider<UserProvider>(
-      UserProvider.name
-    ).getUser(body.username);
+  async login(@Body() body: IAuthLogin, @Res() response: Response): Promise<Errorable<any>> {
+    const user = await this.getProvider<UserProvider>(UserProvider.name).getUser(body.username);
 
     if (!user) {
       response.status(HTTP_CODE.NOT_FOUND);

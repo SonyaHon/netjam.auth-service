@@ -24,12 +24,7 @@ const njApp = new NetjamServer({
 
 async function bootstrap() {
   njApp.useGlobalRestApiPrefix("/api");
-  await njApp.bootstrap([
-    new DatabaseProvider(),
-    new LoggerProvider(),
-    new AuthProvider(),
-    new UserProvider(),
-  ]);
+  await njApp.bootstrap([new DatabaseProvider(), new LoggerProvider(), new AuthProvider(), new UserProvider()]);
   await njApp.start();
   console.log("AuthService started on 0.0.0.0:9091");
 }
