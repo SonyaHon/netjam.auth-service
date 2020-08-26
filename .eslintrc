@@ -8,7 +8,8 @@
     "no-console": ["warn"],
     "newline-before-return": ["error"],
     "import/prefer-default-export": ["off"],
-    "prettier/prettier": ["error", {}]
+    "prettier/prettier": ["error", {}],
+    "@typescript-eslint/lines-between-class-members": ["off"]
   },
   "parserOptions": {
     "project": "./tsconfig.json"

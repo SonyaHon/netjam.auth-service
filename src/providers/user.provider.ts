@@ -55,7 +55,6 @@ const CheckAuth = injectRequestRestHandlerFactory((req: Request, response: Respo
 })
 export class UserProvider extends ProviderBase {
   private db: DatabaseProvider;
-
   private logger: LoggerProvider;
 
   @AfterStartInit
