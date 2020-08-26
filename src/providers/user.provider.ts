@@ -16,7 +16,6 @@ import { DatabaseProvider } from "./database.provider";
 import { User, ICreateUser } from "../entity/user.entity";
 import { HTTP_CODE, Errorable, ERROR_CODE } from "../reference/error";
 import { LoggerProvider } from "./logger.provider";
-import { NJ_JWT_TOKEN } from "../reference/tokens";
 import { UserData } from "../reference/user-data";
 
 export interface IUserFrontend {
@@ -30,16 +29,16 @@ const CheckAuth = injectRequestRestHandlerFactory((req: Request, response: Respo
     code: ERROR_CODE.BAD_TOKEN,
     message: "Jwt token is invalid",
   };
+  const { token } = req.query;
 
-  if (!req.cookies[NJ_JWT_TOKEN]) {
+  if (!token) {
     response.status(HTTP_CODE.FORBIDDEN);
     response.json(error);
 
     return;
   }
 
-  const token = req.cookies[NJ_JWT_TOKEN];
-  const decoded = verify(token, process.env.NJ_JWT_SECRET || "secret");
+  const decoded = verify(token as string, process.env.NJ_JWT_SECRET || "secret");
   if (!decoded) {
     response.status(HTTP_CODE.FORBIDDEN);
     response.json(error);
@@ -86,7 +85,7 @@ export class UserProvider extends ProviderBase {
 
   @Get("/fetch-self")
   @CheckAuth()
-  async fetchSelf(@Req() request: Request) {
+  async fetchSelf(@Req() request: { body: { token: { userId: string } } }) {
     const { token } = request.body;
     const { userId } = token;
 

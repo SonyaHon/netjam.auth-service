@@ -1,13 +1,7 @@
 import { ProviderBase, AfterStartInit } from "@netjam/server";
 import { DatabaseProvider } from "./database.provider";
 import { IEvent } from "../reference/event";
-import { Log } from "../entity/log.entity";
-
-export enum ELogLevel {
-  INFO = "info",
-  WARNING = "warning",
-  ERROR = "error",
-}
+import { Log, ELogLevel } from "../entity/log.entity";
 
 export class LoggerProvider extends ProviderBase {
   private db: DatabaseProvider;

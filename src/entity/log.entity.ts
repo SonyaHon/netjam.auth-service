@@ -1,6 +1,11 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 import { IEvent } from "../reference/event";
-import { ELogLevel } from "../providers/logger.provider";
+
+export enum ELogLevel {
+  INFO = "info",
+  WARNING = "warning",
+  ERROR = "error",
+}
 
 export interface ICreateLog {
   level: ELogLevel;

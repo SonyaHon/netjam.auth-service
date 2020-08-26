@@ -5,7 +5,6 @@ import { sign } from "jsonwebtoken";
 import { UserProvider, IUserFrontend } from "./user.provider";
 import { User } from "../entity/user.entity";
 import { HTTP_CODE, Errorable, ERROR_CODE, IError } from "../reference/error";
-import { NJ_JWT_TOKEN } from "../reference/tokens";
 
 export interface IAuthLogin {
   username: string;
@@ -24,7 +23,10 @@ export class AuthProvider extends ProviderBase {
   }
 
   @Post("/login")
-  async login(@Body() body: IAuthLogin, @Res() response: Response): Promise<Errorable<IUserFrontend>> {
+  async login(
+    @Body() body: IAuthLogin,
+    @Res() response: Response
+  ): Promise<Errorable<{ token: string; data: IUserFrontend }>> {
     const ERR = {
       code: ERROR_CODE.USER_NOT_FOUND,
       message: "Username or password is incorrect",
@@ -48,11 +50,9 @@ export class AuthProvider extends ProviderBase {
       expiresIn: unwrapedUser.data.loginTimeout ? unwrapedUser.data.loginTimeout : "7d",
     });
 
-    response.cookie(NJ_JWT_TOKEN, jwtToken, {
-      domain: "localhost",
-      path: "/",
-    });
-
-    return UserProvider.UserToFrontendUser(unwrapedUser);
+    return {
+      token: jwtToken,
+      data: UserProvider.UserToFrontendUser(unwrapedUser),
+    };
   }
 }
