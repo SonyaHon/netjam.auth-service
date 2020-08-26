@@ -1,9 +1,54 @@
-import { ProviderBase, Provider, ProviderType, AfterStartInit, Post, Body, Res, Get, Req } from "@netjam/server";
+import {
+  ProviderBase,
+  Provider,
+  ProviderType,
+  AfterStartInit,
+  Post,
+  Body,
+  Res,
+  Get,
+  Req,
+  injectRequestRestHandlerFactory,
+} from "@netjam/server";
 import { Response, Request } from "express";
+import { verify } from "jsonwebtoken";
 import { DatabaseProvider } from "./database.provider";
 import { User, ICreateUser } from "../entity/user.entity";
 import { HTTP_CODE, Errorable, ERROR_CODE } from "../reference/error";
 import { LoggerProvider } from "./logger.provider";
+import { NJ_JWT_TOKEN } from "../reference/tokens";
+import { UserData } from "../reference/user-data";
+
+export interface IUserFrontend {
+  username: string;
+  id: string;
+  data: UserData;
+}
+
+const CheckAuth = injectRequestRestHandlerFactory((req: Request, response: Response, next: any) => {
+  const error = {
+    code: ERROR_CODE.BAD_TOKEN,
+    message: "Jwt token is invalid",
+  };
+
+  if (!req.cookies[NJ_JWT_TOKEN]) {
+    response.status(HTTP_CODE.FORBIDDEN);
+    response.json(error);
+
+    return;
+  }
+
+  const token = req.cookies[NJ_JWT_TOKEN];
+  const decoded = verify(token, process.env.NJ_JWT_SECRET || "secret");
+  if (!decoded) {
+    response.status(HTTP_CODE.FORBIDDEN);
+    response.json(error);
+
+    return;
+  }
+  req.body.token = decoded;
+  next();
+});
 
 @Provider(ProviderType.REST, {
   prefix: "/user",
@@ -32,11 +77,27 @@ export class UserProvider extends ProviderBase {
     }
   }
 
-  @Get("/fetch-self")
-  async fetchSelf(@Req() request: Request) {
-    console.log(request.cookies);
+  static UserToFrontendUser(user: User): IUserFrontend {
+    return {
+      id: user.id,
+      username: user.username,
+      data: user.data,
+    };
+  }
 
-    return false;
+  @Get("/fetch-self")
+  @CheckAuth()
+  async fetchSelf(@Req() request: Request) {
+    const { token } = request.body;
+    const { userId } = token;
+
+    const user = await this.db.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    return UserProvider.UserToFrontendUser(user);
   }
 
   @Post("/create")

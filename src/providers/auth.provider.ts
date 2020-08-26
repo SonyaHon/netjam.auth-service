@@ -2,20 +2,14 @@ import { ProviderBase, AfterStartInit, Provider, ProviderType, Post, Body, Res }
 import { Response } from "express";
 import { compare } from "bcrypt";
 import { sign } from "jsonwebtoken";
-import { UserProvider } from "./user.provider";
+import { UserProvider, IUserFrontend } from "./user.provider";
 import { User } from "../entity/user.entity";
 import { HTTP_CODE, Errorable, ERROR_CODE, IError } from "../reference/error";
-import { UserData } from "../reference/user-data";
+import { NJ_JWT_TOKEN } from "../reference/tokens";
 
 export interface IAuthLogin {
   username: string;
   password: string;
-}
-
-export interface IUserFrontend {
-  username: string;
-  id: string;
-  data: UserData;
 }
 
 @Provider(ProviderType.REST, {
@@ -54,12 +48,11 @@ export class AuthProvider extends ProviderBase {
       expiresIn: unwrapedUser.data.loginTimeout ? unwrapedUser.data.loginTimeout : "7d",
     });
 
-    response.cookie("nj-jwt-token", jwtToken);
+    response.cookie(NJ_JWT_TOKEN, jwtToken, {
+      domain: "localhost",
+      path: "/",
+    });
 
-    return {
-      username: unwrapedUser.username,
-      id: unwrapedUser.id,
-      data: unwrapedUser.data,
-    };
+    return UserProvider.UserToFrontendUser(unwrapedUser);
   }
 }
