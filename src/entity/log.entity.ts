@@ -38,6 +38,7 @@ export class Log {
     event.timestamp = Date.now();
     event.level = data.level;
     event.event = data.event;
+
     return event;
   }
 }
