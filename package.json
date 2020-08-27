@@ -1,8 +1,9 @@
 {
   "name": "netjam.auth-service",
   "version": "1.0.0",
-  "description": "",
+  "description": "Auth service for the Netjam projects",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "start": "ts-node src/index.ts",
     "start-dev": "DB_HOST=localhost DB_USERNAME=postgres DB_PASSWORD=postgres DB_PORT=5432 NJ_HOST=0.0.0.0 NJ_PORT=9091 ts-node ./src/index.ts"
@@ -47,6 +48,6 @@
     "ts-node": "9.0.0",
     "typescript": "4.0.2"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Pavel Sonyahon Volkov <volkov030@gmail.com>",
+  "license": "MIT"
 }
