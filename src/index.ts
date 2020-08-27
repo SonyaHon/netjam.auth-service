@@ -5,6 +5,7 @@ import { DatabaseProvider } from "./providers/database.provider";
 import { AuthProvider } from "./providers/auth.provider";
 import { UserProvider } from "./providers/user.provider";
 import { LoggerProvider } from "./providers/logger.provider";
+import { logger } from "./utils/logger";
 
 const njApp = new NetjamServer({
   server: {
@@ -30,7 +31,9 @@ async function bootstrap() {
   njApp.express.use(cors());
   await njApp.bootstrap([new DatabaseProvider(), new LoggerProvider(), new AuthProvider(), new UserProvider()]);
   await njApp.start();
-  console.log("AuthService started on 0.0.0.0:9091");
+  logger.info(`Service "auth.service" is listening on ${process.env.NJ_HOST}:${process.env.NJ_PORT}`);
 }
 
-bootstrap().catch((e) => console.error(e));
+bootstrap().catch((e) => {
+  logger.error(e.message);
+});

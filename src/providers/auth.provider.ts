@@ -2,7 +2,7 @@ import { ProviderBase, AfterStartInit, Provider, ProviderType, Post, Body, Res }
 import { Response } from "express";
 import { compare } from "bcrypt";
 import { sign } from "jsonwebtoken";
-import { UserProvider, IUserFrontend } from "./user.provider";
+import { UserProvider, IUserFrontend, IUserNavbar } from "./user.provider";
 import { User } from "../entity/user.entity";
 import { HTTP_CODE, Errorable, ERROR_CODE, IError } from "../reference/error";
 
@@ -26,7 +26,7 @@ export class AuthProvider extends ProviderBase {
   async login(
     @Body() body: IAuthLogin,
     @Res() response: Response
-  ): Promise<Errorable<{ token: string; data: IUserFrontend }>> {
+  ): Promise<Errorable<{ token: string; data: IUserFrontend; navbar: IUserNavbar }>> {
     const ERR = {
       code: ERROR_CODE.USER_NOT_FOUND,
       message: "Username or password is incorrect",
@@ -53,6 +53,7 @@ export class AuthProvider extends ProviderBase {
     return {
       token: jwtToken,
       data: UserProvider.UserToFrontendUser(unwrapedUser),
+      navbar: await this.userProvider.resolveUserNavbar(unwrapedUser, "/", "main.home"),
     };
   }
 }

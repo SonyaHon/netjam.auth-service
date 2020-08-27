@@ -1,8 +1,8 @@
 import { Entity, Column, PrimaryColumn } from "typeorm";
+import { v4 as uuid } from "uuid";
+import { hash } from "bcrypt";
 import { EPermissions } from "../reference/permissions";
 import { UserData } from "../reference/user-data";
-import { v4 as uuid } from "uuid";
-import { genSalt, hash } from "bcrypt";
 import { SALT_ROUNDS } from "../reference/crypto";
 
 export interface ICreateUser {
@@ -49,12 +49,16 @@ export class User {
 
     user.id = uuid();
     user.username = data.username;
-    user.permissions = data.permissions || [EPermissions.GUEST];
+    user.permissions = data.permissions || [EPermissions.SETTINGS];
     user.data = data.data || {};
 
     const passwordHash = await hash(data.password, SALT_ROUNDS);
     user.password = passwordHash;
 
     return user;
+  }
+
+  hasPermission(permission: EPermissions) {
+    return this.permissions.includes(permission);
   }
 }

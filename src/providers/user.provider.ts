@@ -9,6 +9,7 @@ import {
   Get,
   Req,
   injectRequestRestHandlerFactory,
+  Query,
 } from "@netjam/server";
 import { Response, Request } from "express";
 import { verify } from "jsonwebtoken";
@@ -17,6 +18,8 @@ import { User, ICreateUser } from "../entity/user.entity";
 import { HTTP_CODE, Errorable, ERROR_CODE } from "../reference/error";
 import { LoggerProvider } from "./logger.provider";
 import { UserData } from "../reference/user-data";
+import { EPermissions } from "../reference/permissions";
+import { NAVBAR_ITEMS } from "../reference/navbar-items";
 
 export interface IUserFrontend {
   username: string;
@@ -24,30 +27,54 @@ export interface IUserFrontend {
   data: UserData;
 }
 
-const CheckAuth = injectRequestRestHandlerFactory((req: Request, response: Response, next: any) => {
-  const error = {
-    code: ERROR_CODE.BAD_TOKEN,
-    message: "Jwt token is invalid",
-  };
-  const { token } = req.query;
+export interface INavbarItem {
+  title: string;
+  icon: string;
+  to: string;
+}
 
-  if (!token) {
-    response.status(HTTP_CODE.FORBIDDEN);
-    response.json(error);
+export interface IUserNavbar {
+  project: string;
+  items: INavbarItem[];
+}
 
-    return;
+type TokenizedReq = { body: { token: { userId: string } } };
+
+enum ReqType {
+  GET,
+  POST,
+}
+
+enum AuthType {
+  TOKEN,
+}
+
+const CheckAuth = injectRequestRestHandlerFactory(
+  (req: Request, response: Response, next: any, reqType: ReqType, authType: AuthType) => {
+    const error = {
+      code: ERROR_CODE.BAD_TOKEN,
+      message: "Jwt token is invalid",
+    };
+    const { token } = req.query;
+
+    if (!token) {
+      response.status(HTTP_CODE.FORBIDDEN);
+      response.json(error);
+
+      return;
+    }
+
+    const decoded = verify(token as string, process.env.NJ_JWT_SECRET || "secret");
+    if (!decoded) {
+      response.status(HTTP_CODE.FORBIDDEN);
+      response.json(error);
+
+      return;
+    }
+    req.body.token = decoded;
+    next();
   }
-
-  const decoded = verify(token as string, process.env.NJ_JWT_SECRET || "secret");
-  if (!decoded) {
-    response.status(HTTP_CODE.FORBIDDEN);
-    response.json(error);
-
-    return;
-  }
-  req.body.token = decoded;
-  next();
-});
+);
 
 @Provider(ProviderType.REST, {
   prefix: "/user",
@@ -83,9 +110,37 @@ export class UserProvider extends ProviderBase {
     };
   }
 
+  resolveProject(name) {
+    const res = name.match(/^\$(.*)\$.*$/);
+
+    return res[1];
+  }
+
+  async resolveUserNavbar(user: User, path: string, name: string): Promise<IUserNavbar> {
+    if (user.hasPermission(EPermissions.ROOT)) {
+      if (name.match(/^main\..*$/)) {
+        return {
+          project: null,
+          items: Object.values(NAVBAR_ITEMS),
+        };
+      }
+      const project = this.resolveProject(name);
+
+      return {
+        project,
+        items: [],
+      };
+    }
+
+    return {
+      project: null,
+      items: [],
+    };
+  }
+
   @Get("/fetch-self")
-  @CheckAuth()
-  async fetchSelf(@Req() request: { body: { token: { userId: string } } }) {
+  @CheckAuth(ReqType.GET, AuthType.TOKEN)
+  async fetchSelf(@Req() request: TokenizedReq) {
     const { token } = request.body;
     const { userId } = token;
 
@@ -96,6 +151,36 @@ export class UserProvider extends ProviderBase {
     });
 
     return UserProvider.UserToFrontendUser(user);
+  }
+
+  @Get("/can-visit-route")
+  @CheckAuth(ReqType.GET, AuthType.TOKEN)
+  async canVisitRoute(
+    @Req() request: TokenizedReq,
+    @Query() query: { name: string; path: string }
+  ): Promise<{ result: boolean; navbar?: IUserNavbar }> {
+    if (query.name === "main") {
+      return {
+        result: true,
+      };
+    }
+
+    const user = await this.db.userRepository.findOne({
+      where: {
+        id: request.body.token.userId,
+      },
+    });
+
+    if (user.hasPermission(EPermissions.ROOT)) {
+      return {
+        result: true,
+        navbar: await this.resolveUserNavbar(user, query.path, query.name),
+      };
+    }
+
+    return {
+      result: false,
+    };
   }
 
   @Post("/create")

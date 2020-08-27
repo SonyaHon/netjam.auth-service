@@ -11,7 +11,7 @@
       "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start-dev"]
+      "runtimeArgs": ["run", "debug"]
     }
   ]
 }
