@@ -1,4 +1,4 @@
-import { NetjamServer } from "@netjam/server";
+import { NetjamServer, MicroserviceConnectProvider, MICROSERVICE_CONNECT } from "@netjam/server";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { DatabaseProvider } from "./providers/database.provider";
@@ -29,7 +29,13 @@ async function bootstrap() {
   njApp.useGlobalRestApiPrefix("/api");
   njApp.express.use(cookieParser(process.env.NJ_COOKIE_SECRET || "secret"));
   njApp.express.use(cors());
-  await njApp.bootstrap([new DatabaseProvider(), new LoggerProvider(), new AuthProvider(), new UserProvider()]);
+  await njApp.bootstrap([
+    new MicroserviceConnectProvider(),
+    new DatabaseProvider(),
+    new LoggerProvider(),
+    new AuthProvider(),
+    new UserProvider(),
+  ]);
   await njApp.start();
   logger.info(`Service "auth.service" is listening on ${process.env.NJ_HOST}:${process.env.NJ_PORT}`);
 }
